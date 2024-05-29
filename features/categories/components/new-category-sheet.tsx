@@ -20,7 +20,7 @@ type FormValues = z.infer<typeof formSchema>;
 export const NewCategorySheet = () => {
     const { isOpen, onClose } = useNewCategory();
 
-    const mutation = useCreateAccount();
+    const mutation = useCreateCategory();
 
     const onSubmit = (values: FormValues) => {
         mutation.mutate(values, {

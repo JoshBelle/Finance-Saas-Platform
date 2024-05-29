@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { client } from "@/lib/hono";
 
-type ResponseType = InferResponseType<typeof client.api.accounts[':id']['$delete']>
+type ResponseType = InferResponseType<typeof client.api.categories[':id']['$delete']>
 
 
 export const useDeleteCategory = (id: string) => {
