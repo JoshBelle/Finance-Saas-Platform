@@ -15,6 +15,13 @@
       "when": 1716765359774,
       "tag": "0001_spicy_menace",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1717012429754,
+      "tag": "0002_skinny_deadpool",
+      "breakpoints": true
     }
   ]
 }
