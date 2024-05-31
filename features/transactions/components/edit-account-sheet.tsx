@@ -1,4 +1,4 @@
-import { AccountForm } from './account-form';
+import { AccountForm } from './transaction-form';
 import { insertAccountSchema } from '@/db/schema';
 import { useGetAccount } from '../api/use-get-transaction';
 import { useOpenAccount } from '../hooks/use-open-account';
