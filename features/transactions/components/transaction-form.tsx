@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver  } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
 import { insertTransactionSchema } from '@/db/schema'
+import { convertAmountToMiliunits } from '@/lib/utils'
 import  {
    Form,
    FormControl,
@@ -64,7 +65,13 @@ export const TransactionForm  = ({
     })
 
     const handleSubmit = (values: FormValues) => {
-        console.log({values})
+        const amount = parseFloat(values.amount)
+        const amountInMiliunits = convertAmountToMiliunits(amount)
+        
+        onSubmit({
+            ...values,
+            amount: amountInMiliunits
+        })
     }
 
     const handleDelete = () => {

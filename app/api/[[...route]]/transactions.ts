@@ -106,7 +106,7 @@ const app = new Hono()
                     accountId: transactions.accountId,
                 })
                 .from(transactions)
-                .leftJoin(categories, eq(transactions.categoryId, categories.id))
+                .innerJoin(accounts, eq(transactions.accountId, accounts.id))
                 .where(
                     and(
                        eq(transactions.id, id),

@@ -43,7 +43,7 @@ export const transactions = pgTable('transactions',{
     accountId: text('account_id').references(() => accounts.id, {
         onDelete: 'cascade',
     }).notNull(),
-    categoryId: text('category_id', {}).references(() => categories.id,  {
+    categoryId: text('category_id').references(() => categories.id,  {
         onDelete: 'set null',
     })
 })
@@ -54,7 +54,7 @@ export const transactionsRelations = relations(transactions,  ({ one })  =>  ({
         references: [accounts.id],
     }),
     categories: one(categories, {
-        fields: [transactions.accountId],
+        fields: [transactions.categoryId],
         references: [categories.id],
     }),
 }))
