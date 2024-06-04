@@ -70,7 +70,7 @@ const app = new Hono()
                         accountId ? eq(transactions.accountId, accountId): undefined,
                         eq(accounts.userId, auth.userId),
                         gte(transactions.date, startDate),
-                        lte(transactions.date, endDate),
+                        // lte(transactions.date, endDate),
                     )
                 )
                 .orderBy(desc(transactions.date))
