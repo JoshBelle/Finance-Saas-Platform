@@ -37,6 +37,11 @@ export const NewTransactionSheet = () => {
     
     const accountQuery = useGetAccounts();
     const accountMutation = useCreateAccount();
+    const onCreateAccount = (name: string) => accountMutation.mutate({ name });
+    const accountOptions = (accountQuery.data ?? []).map((account) => ({
+        label: account.name,
+        value: account.id,  
+    }))
 
     const isPending = 
         createMutation.isPending || 
@@ -47,11 +52,6 @@ export const NewTransactionSheet = () => {
         categoryQuery.isLoading ||
         accountQuery.isLoading;
 
-    const onCreateAccount = (name: string) => accountMutation.mutate({ name });
-    const accountOptions = (accountQuery.data ?? []).map((account) => ({
-        label: account.name,
-        value: account.id,  
-    }))
 
     const onSubmit = (values: FormValues) => {
         createMutation.mutate(values, {
