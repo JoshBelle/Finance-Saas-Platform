@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { ImportTable } from './import-table';
 import { 
     Card, 
     CardContent, 
@@ -50,7 +51,7 @@ export const ImportCard = ({
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <ImportTable 
+                    <ImportTable
                         headers={headers}
                         body={body}
                         selectedColumns={selectedColumns}
