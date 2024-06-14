@@ -11,42 +11,44 @@ import {
 type Props = {
     headers: string[],
     body: string[][],
-    selectedColumns: Record<string, string | null>
+    selectedColumns: Record<string, string | null>,
     onTableHeadSelectsChange: (columnIndex: number, value: string | null) => void
 }
 
-export const ImportTable = ({
+export const ImportTable: React.FC<Props> = ({
     headers,
     body,
     selectedColumns,
     onTableHeadSelectsChange
-}:Props) => {
-    <div className='rounded-md border overflow-hidden'>
-        <Table>
-            <TableHeader className='bg-muted'>
-                <TableRow>
-                    {headers.map((_item, index) => (
-                        <TableHead key={index}>
-                            <TableHeadSelect 
-                                columnIndex={index}
-                                selectedColumns={selectedColumns}
-                                onChange={onTableHeadSelectsChange}
-                            />
-                        </TableHead>
-                    ))}
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {body.map((row: string[], index) => (
-                    <TableRow key={index}>
-                        {row.map((cell, index) => (
-                            <TableCell key={index}>
-                                {cell}
-                            </TableCell>
+}) => {
+    return (
+        <div className='rounded-md border overflow-hidden'>
+            <Table>
+                <TableHeader className='bg-muted'>
+                    <TableRow>
+                        {headers.map((_item, index) => (
+                            <TableHead key={index}>
+                                <TableHeadSelect 
+                                    columnIndex={index}
+                                    selectedColumns={selectedColumns}
+                                    onChange={onTableHeadSelectsChange}
+                                />
+                            </TableHead>
                         ))}
                     </TableRow>
-                ))}
-            </TableBody>
-        </Table>
-    </div>
+                </TableHeader>
+                <TableBody>
+                    {body.map((row: string[], rowIndex) => (
+                        <TableRow key={rowIndex}>
+                            {row.map((cell, cellIndex) => (
+                                <TableCell key={cellIndex}>
+                                    {cell}
+                                </TableCell>
+                            ))}
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    )
 }
