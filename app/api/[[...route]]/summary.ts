@@ -4,8 +4,9 @@ import { Hono } from "hono";
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
 import { zValidator } from "@hono/zod-validator";
 import { subDays, parse, differenceInDays } from "date-fns";
-import { eq, sql, sum } from "drizzle-orm";
-import { accounts, transactions } from "@/db/schema";
+import { and, desc, eq, gte, lt, lte, sql, sum } from "drizzle-orm";
+import { accounts, categories, transactions } from "@/db/schema";
+import { calculatedPercentageChange, fillMissingDays } from "@/lib/utils";
 
 const app = new Hono()
     .get(
@@ -50,7 +51,7 @@ const app = new Hono()
                 return await db
                     .select({
                         income: sql`SUM(CASE WHEN ${transactions.amount} >= 0 THEN ${transactions.amount} ELSE 0 END)`.mapWith(Number),
-                        expenses: sql`SUM(CASE WHEN ${transactions.amount} < 0 THEN ${transactions.amount} ELSE 0 END)`.mapWith(Number),,
+                        expenses: sql`SUM(CASE WHEN ${transactions.amount} < 0 THEN ${transactions.amount} ELSE 0 END)`.mapWith(Number),
                         remaining: sum(transactions.amount).mapWith(Number),    
                     })
                     .from(transactions)
@@ -59,6 +60,14 @@ const app = new Hono()
                         eq(
                             transactions.accountId,
                             accounts.id,
+                        )
+                    )
+                    .where(
+                        and(
+                            accountId ? eq(transactions.accountId, accountId) : undefined,
+                            eq(accounts.userId, userId),
+                            gte(transactions.date, startDate),
+                            lte(transactions.date, endDate),
                         )
                     )
             }
@@ -70,9 +79,115 @@ const app = new Hono()
             )
             const [lastPeriod] = await fetchFinancialData(
                 auth.userId,
+                lastPeriodStart,
+                lastPeriodEnd,
+            )
+
+            const incomeChange = calculatedPercentageChange(
+                currentPeriod.income,
+                lastPeriod.income,
+            )
+
+            const expensesChange = calculatedPercentageChange(
+                currentPeriod.expenses,
+                lastPeriod.expenses,
+            )
+
+            const remainingChange = calculatedPercentageChange(
+                currentPeriod.remaining,
+                lastPeriod.remaining,
+            )
+
+            const category = await db
+                .select({
+                    name: categories.name,
+                    value: sql `SUM (ABS(${transactions.amount}))`.mapWith(Number),
+                })
+                .from(transactions)
+                .innerJoin(
+                    accounts,
+                    eq(
+                        transactions.accountId,
+                        accounts.id,
+                    )
+                )
+                .innerJoin(
+                    categories,
+                    eq(
+                        transactions.categoryId,
+                        categories.id
+                    )
+                )
+                .where(
+                    and(
+                        accountId ? eq(transactions.accountId, accountId) : undefined,
+                        eq(accounts.userId, auth.userId),
+                        lt(transactions.amount, 0),
+                        gte(transactions.date, startDate),
+                        lte(transactions.date, endDate),
+                    )
+                )
+                .groupBy(categories.name)
+                .orderBy(desc(
+                    sql`SUM(ABS(${transactions.amount}))`
+                ))
+
+            const topCategories = category.slice(0, 3)
+            const otherCategories = category.slice(3)
+            const otherSum = otherCategories
+                .reduce((sum, current) => sum + current.value, 0)
+
+            const finalCategories = topCategories
+            if (otherCategories.length > 0) {
+                finalCategories.push({
+                    name: 'Other',
+                    value: otherSum,
+                })
+            }
+
+            const activeDays = await db
+                .select({
+                    date: transactions.date,
+                    income: sql`SUM(CASE WHEN ${transactions.amount} >= 0 THEN ${transactions.amount} ELSE 0 END )`.mapWith(Number),
+                    expenses: sql`SUM(CASE WHEN ${transactions.amount} < 0 THEN ${transactions.amount} ELSE 0 END )`.mapWith(Number)
+                })
+                .from(transactions)
+                .innerJoin(
+                    accounts,
+                    eq(
+                        transactions.accountId,
+                        accounts.id,
+                    )
+                )
+                .where(
+                    and(
+                        accountId ? eq(transactions.accountId, accountId) : undefined,
+                        eq(accounts.userId, auth.userId),
+                        gte(transactions.date, startDate),
+                        lte(transactions.date, endDate),
+                    )
+                )
+                .groupBy(transactions.date)
+                .orderBy(transactions.date)
+            
+            const days = fillMissingDays(
+                activeDays,
                 startDate,
                 endDate,
             )
+
+            return c.json({
+                data: {
+                    remainingAmount: currentPeriod.remaining,
+                    remainingChange,
+                    incomeAmount: currentPeriod.income,
+                    incomeChange,
+                    expensesAmount: currentPeriod.expenses,
+                    expensesChange,
+                    categories: finalCategories,
+                    days,
+                }
+            })
         }
     )
 
