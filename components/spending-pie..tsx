@@ -1,4 +1,5 @@
 import { FileSearch, PieChart, Radar, Target } from 'lucide-react';
+import { PieVariant } from './pie-variant';
 import { useState } from 'react';
 import { 
     Card, 
@@ -16,7 +17,7 @@ import {
 } from './ui/select';
 
 type Props = {
-    data: {
+    data?: {
         name: string;
         value: number;
     }[];
@@ -69,7 +70,7 @@ export const SpendingPie = ({ data }: Props) => {
                 </Select>
             </CardHeader>
             <CardContent>
-                {data.length === 0 ? (
+                {data?.length === 0 ? (
                     <div className="flex flex-col gap-y-4 items-center justify-center h-[350px] w-full">
                         <FileSearch className="size-6 text-muted-foreground" />
                         <p className="text-muted-foreground text-small">
@@ -78,9 +79,7 @@ export const SpendingPie = ({ data }: Props) => {
                     </div>
                 ) : (
                     <>
-                        {chartType === 'pie' && <AreaVariant data={data} />}
-                        {chartType === 'radar' && <BarVariant data={data}/>}
-                        {chartType === 'radio' && <LineVariant data={data} />}
+                        {chartType === 'pie' && <PieVariant data={data} />}
                     </>
                 )}
             </CardContent>
