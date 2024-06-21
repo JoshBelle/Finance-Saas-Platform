@@ -28,8 +28,8 @@ export const EditAccountSheet = () => {
         'You are about to delete this account.',
     )
     const accountQuery = useGetAccount(id)
-    const editMutation = useEditAccount(id)
-    const deleteMutation = useDeleteAccount(id)
+    const editMutation = useEditAccount(id as string) 
+    const deleteMutation = useDeleteAccount(id as string) 
 
     const isPending =  editMutation.isPending || deleteMutation.isPending
 
