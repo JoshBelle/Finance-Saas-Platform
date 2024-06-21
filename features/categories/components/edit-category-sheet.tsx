@@ -28,8 +28,8 @@ export const EditCategorySheet = () => {
         'You are about to delete this category.'
     );
     const categoryQuery = useGetCategory(id);
-    const editMutation = useEditCategory(id);
-    const deleteMutation = useDeleteCategory(id);
+    const editMutation = useEditCategory(id as string);
+    const deleteMutation = useDeleteCategory(id as string);
 
     const isPending = editMutation.isPending || deleteMutation.isPending;
 
